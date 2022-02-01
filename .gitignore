@@ -4,3 +4,4 @@ Lance.ipynb
 *.pyc 
 *.csv
 notebook_test.ipynb
+saved_model/
