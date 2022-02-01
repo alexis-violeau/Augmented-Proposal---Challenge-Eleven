@@ -21,7 +21,6 @@ Y_COLS = 'valm2'
 
 def produce_datasets(df,x_cols,y_col,n_neigh_max = 100,dist_max = 350):
 
-    df = preprocessing.preprocess_date(df)
 
     df_train, df_test = train_test_split(df)
     df_train.reset_index(inplace=True,drop=True)
