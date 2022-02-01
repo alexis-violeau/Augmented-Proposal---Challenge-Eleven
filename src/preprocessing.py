@@ -79,11 +79,13 @@ def filter_dataset(df):
 
 
 def add_geodata(df):
+    # Add the geographical data to the dataset
     df_geo = loading.load_geodata()
     return df.merge(df_geo,how='left',left_on='insee',right_on='insee')
 
 
 def add_communal_div(df):
+    # Add the code_zone thanks to an external dataset
     df_commune = loading.load_communal_data()
     df_commune.columns = ['insee', 'code_zone', 'no_need']
     df_commune.drop(['no_need'], axis=1, inplace=True)
@@ -92,7 +94,7 @@ def add_communal_div(df):
     df = df.merge(df_commune,how='left',left_on='insee',right_on='insee')
     df.drop(['insee'], axis=1, inplace=True)
 
-    # Adding code_zone for Paris
+    # Add code_zone for Paris, because Paris has only on INSEE code in this dataset versus twenty in our dataset
     df['code_zone'].replace({np.NaN : "Abis"}, inplace=True)
     return df
 
