@@ -1,5 +1,6 @@
 import sys
 import numpy as np
+from model import X_COLS_BUY
 import streamlit as st 
 import folium
 from folium import plugins
@@ -14,6 +15,7 @@ st.set_page_config(layout="wide")
 import preprocessing
 import loading
 import visualization
+import model
 
 df = loading.load_data()
 df_sell, df_buy = preprocessing.filter_dataset(df)
@@ -59,9 +61,16 @@ adresse = st.sidebar.text_input('Adress : ', '11 Rue Vieille du Temple, Paris')
 
 lat,long = visualization.extract_logitude_latitude(adresse)
 
+model_buy = model.load_buy_model()
+model_sell = model.load_sell_model()
+
+price_sell = model_sell.predict(np.array([[lat,long,1.0,0.0]]))
+price_buy = model_buy.predict(np.array([[lat,long,0.0]]))
+
+
 folium.Marker(
       location=[lat, long],
-      popup=adresse,
+      popup=adresse +  ' \n sell price : ' + str(price_sell[0]) + ' \n buy price : ' + str(price_buy[0]),
    ).add_to(map)
 
 folium_static(map)

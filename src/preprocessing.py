@@ -57,8 +57,12 @@ def filter_dataset(df):
     df_buy = df_buy[(df_buy.nbcomm == 1)]
     # Compute value per surface
     df_buy['valm2'] = df_buy.valeurfonc/df_buy.sterr
+    
+    
     # Convert list of INSEE code to single value
     df_buy['insee'] = df_buy['l_codinsee'].apply(lambda x : x[2:-2]).astype(int)
+    
+
     df_buy.coddep = df_buy.coddep.astype(int)
     df_buy.anneemut = df_buy.anneemut.astype(int)
     df_buy.moismut = df_buy.moismut.astype(int)
