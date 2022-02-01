@@ -2,12 +2,31 @@ from math import radians
 import numpy as np
 from scipy.spatial import distance_matrix
 from sklearn.neighbors import BallTree
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
 
 AVERAGE_RADIUS_OF_EARTH_KM = 6371
 X_COLS = ['latitude', 'longitude', 'rooms','ts_date','neighborhood_price','mean_distance_neigh']
 Y_COLS = ['valm2']
 
 
+def produce_datasets(df,n_neigh_max = 50,dist_max = 500):
+
+    df_train, df_test = train_test_split(df)
+    df_train = df_train.compute_neighborhood_price_train(df,n_neigh_max = n_neigh_max,dist_max = dist_max,clean = True)
+    df_test = df_test.compute_neighborhood_price_test(df_train,df_test,n_neigh_max = n_neigh_max,dist_max = dist_max)
+
+    X_train = df_train[X_COLS]
+    X_test = df_test[X_COLS]
+
+    y_train = df_train[Y_COLS]
+    y_test = df_test[Y_COLS]
+
+    SC = StandardScaler()
+    X_train = SC.fit_transform(X_train)
+    X_test = SC.transform(X_test)
+
+    return X_train, X_test, y_train, y_test
 
 
 def compute_neighborhood_price_train(df,n_neigh_max = 50,dist_max = 500,clean = True):
@@ -65,8 +84,6 @@ def compute_neighborhood_price_train(df,n_neigh_max = 50,dist_max = 500,clean = 
         return df.drop(list(set(indices_to_delete))).reset_index()
     else :
         return df
-
-
 
 
 
