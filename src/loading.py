@@ -23,3 +23,6 @@ def load_geodata(path=GEOMETRY_PATH):
     df.insee = df.insee.astype(int)
     return df[['insee','geometry']]
 
+def load_comunal_data(path='./decoupage_idf.csv'):
+    df = pd.read_csv(path, sep=';', header=None)
+    return df

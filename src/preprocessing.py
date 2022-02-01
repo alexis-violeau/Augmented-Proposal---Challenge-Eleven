@@ -64,6 +64,12 @@ def compute_neighborhood_price(df):
     model = BallTree(df[['radian_latitude', 'radian_longitude']].values, metric='haversine')
     dist, indices = model.query(df[['radian_latitude', 'radian_longitude']].values,k)
 
+def add_comunal_div(df):
+    df_commune = loading.load_comunal_data()
+    df_commune.columns = ['insee', 'code_zone', 'no_need']
+    df_commune.drop(['no_need'], axis=1, inplace=True)
+    df_commune['insee'] = df_commune['insee'].astype(int)
+    return df.merge(df_commune,how='left',left_on='insee',right_on='insee')
 
 
 
