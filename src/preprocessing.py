@@ -15,7 +15,6 @@ def compute_number_of_rooms(row):
 
 
 def filter_dataset(df):
-
     # Select only 'new appartments' + 'one appartment' deals
     df_sell = df[(df.libnatmut == "Vente en l'état futur d'achèvement") & (df.libtypbien == 'UN APPARTEMENT')]
     # Compute the value per m2
