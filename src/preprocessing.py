@@ -1,8 +1,11 @@
 import loading
+from math import radians
+from scipy.spatial import distance_matrix
+from sklearn.neighbors import BallTree
 
 SELL_COLS = ['anneemut','moismut', 'coddep','l_codinsee','latitude','longitude','nblot','valm2','rooms']
 BUY_COLS = ['anneemut','moismut', 'coddep','l_codinsee','latitude','longitude','valm2']
-
+AVERAGE_RADIUS_OF_EARTH_KM = 6371
 
 
 def compute_number_of_rooms(row):
@@ -49,3 +52,19 @@ def filter_dataset(df):
 def add_geodata(df):
     df_geo = loading.load_geodata()
     return df.merge(df_geo,how='left',left_on='l_codinsee',right_on='insee')
+
+
+
+def compute_neighborhood_price(df):
+    df['radian_longitude'] = df.longitude.apply(radians)
+    df['radian_latitude'] = df.latitude.apply(radians)
+
+    k = 30
+
+    model = BallTree(df[['radian_latitude', 'radian_longitude']].values, metric='haversine')
+    dist, indices = model.query(df[['radian_latitude', 'radian_longitude']].values,k)
+
+
+
+
+
