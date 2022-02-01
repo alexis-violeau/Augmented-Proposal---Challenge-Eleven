@@ -1,9 +1,8 @@
 import loading
 import numpy as np
 
-
-SELL_COLS = ['anneemut','moismut', 'coddep','l_codinsee','latitude','longitude','nblot','valm2','rooms']
-BUY_COLS = ['anneemut','moismut', 'coddep','l_codinsee','latitude','longitude','valm2']
+SELL_COLS = ['anneemut','moismut', 'coddep','insee','latitude','longitude','nblot','valm2','rooms']
+BUY_COLS = ['anneemut','moismut', 'coddep','insee','latitude','longitude','valm2']
 AVERAGE_RADIUS_OF_EARTH_KM = 6371
 
 
@@ -14,7 +13,6 @@ def compute_number_of_rooms(row):
     elif row.sapt2pp > 0 : return 2
     elif row.sapt1pp > 0 : return 1
     else : return 0
-
 
 def filter_dataset(df):
 
@@ -27,7 +25,7 @@ def filter_dataset(df):
     # Compute number of rooms
     df_sell['rooms'] = df_sell.apply(compute_number_of_rooms,axis=1)    
     # Convert list of INSEE code to single value
-    df_sell['l_codinsee'] = df_sell['l_codinsee'].apply(lambda x : x[2:-2]).astype(int)
+    df_sell['insee'] = df_sell['l_codinsee'].apply(lambda x : x[2:-2]).astype(int)
     # Set right types
     df_sell.coddep = df_sell.coddep.astype(int)
     df_sell.anneemut = df_sell.anneemut.astype(int)
@@ -41,11 +39,10 @@ def filter_dataset(df):
     # Compute value per surface
     df_buy['valm2'] = df_buy.valeurfonc/df_buy.sterr
     # Convert list of INSEE code to single value
-    df_buy['l_codinsee'] = df_buy['l_codinsee'].apply(lambda x : x[2:-2]).astype(int)
+    df_buy['insee'] = df_buy['l_codinsee'].apply(lambda x : x[2:-2]).astype(int)
 
 
     return df_sell[SELL_COLS].reset_index(drop=True), df_buy[BUY_COLS].reset_index(drop=True)
-
 
 
 def add_geodata(df):

@@ -4,6 +4,7 @@ import folium
 from folium import plugins
 from folium.plugins import HeatMap
 from streamlit_folium import folium_static
+import geopandas as gpd
 
 sys.path.append('src/')
 
@@ -25,6 +26,10 @@ if type == 'Appartment':
 else:
     visualization.density_maps(df_buy)
     
-visualization.communal_maps(df_sell.groupby('insee').mean(),'valm2')
+df_sell_agg = preprocessing.add_geodata(df_sell.groupby('l_codinsee').mean().reset_index())
+df_sell_agg = gpd.GeoDataFrame(df_sell_agg.round())
+
+
+visualization.communal_maps(df_sell_agg,'valm2')
     
     

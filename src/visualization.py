@@ -13,7 +13,7 @@ def communal_maps(communal_df, col, legend=''):
 
     myscale = (communal_df[col].quantile((0,0.2,0.75,0.9,0.98,1))).tolist()
     folium.Choropleth(
-        geo_data = communal_df,                  #json
+        geo_data = communal_df, #json
         name ='choropleth',                  
         data = communal_df,                     
         columns = ['insee',col], #columns to work on
