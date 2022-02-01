@@ -29,7 +29,6 @@ def compute_number_of_rooms(row):
     elif row.sapt1pp > 0 : return 1
     else : return 0
 
-
 def filter_dataset(df):
 
     # preprocessing the date
