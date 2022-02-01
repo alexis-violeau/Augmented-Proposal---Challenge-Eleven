@@ -51,4 +51,9 @@ def add_geodata(df):
     return df.merge(df_geo,how='left',left_on='l_codinsee',right_on='insee')
 
 
+def preprocess_date(df):
+    df['ts_date'] = df.anneemut + (df.moismut-1)/12 -min(df.anneemut)
+    return df
+
+
 

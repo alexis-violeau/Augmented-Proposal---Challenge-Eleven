@@ -4,6 +4,8 @@ from scipy.spatial import distance_matrix
 from sklearn.neighbors import BallTree
 
 
+X_cols = ['anneemut', 'moismut', 'latitude', 'longitude', 'rooms']
+Y_cols = ['valm2']
 
 
 def compute_neighborhood_price_train(df,n_neigh_max = 50,dist_max = 500,clean = True):
