@@ -9,6 +9,7 @@ sys.path.append('src/')
 
 import preprocessing
 import loading
+import visualization
 
 df = loading.load_data()
 df_sell, df_buy = preprocessing.filter_dataset(df)
@@ -20,20 +21,10 @@ type = st.radio(
      ('Appartment', 'Raw land'))
 
 if type == 'Appartment':
-    map_sell = folium.Map(location=[48.868229, 2.347402],
-                    zoom_start = 12)
-    coords_sell = df_sell[['latitude', 'longitude']]
-    coords_sell = coords_sell.dropna(axis=0, subset=['latitude','longitude'])
-    coords_sell = [[row['latitude'],row['longitude']] for index, row in coords_sell.iterrows()]
-    HeatMap(coords_sell).add_to(map_sell)
-
-    folium_static(map_sell)
+    visualization.density_maps(df_sell)
 else:
-    map_buy = folium.Map(location=[48.868229, 2.347402],
-                    zoom_start = 12)
-    coords_buy = df_buy[['latitude', 'longitude']]
-    coords_buy = coords_buy.dropna(axis=0, subset=['latitude','longitude'])
-    coords_buy = [[row['latitude'],row['longitude']] for index, row in coords_buy.iterrows()]
-    HeatMap(coords_buy).add_to(map_buy)
+    visualization.density_maps(df_buy)
     
-    folium_static(map_buy)
+visualization.communal_maps(df_sell.groupby('insee').mean(),'valm2')
+    
+    
