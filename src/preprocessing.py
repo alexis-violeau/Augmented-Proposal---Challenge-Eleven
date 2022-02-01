@@ -2,8 +2,8 @@ import loading
 import numpy as np
 
 
-SELL_COLS = ['anneemut','moismut', 'coddep','insee','latitude','longitude','nblot','valm2','rooms']
-BUY_COLS = ['anneemut','moismut', 'coddep','insee','latitude','longitude','valm2']
+SELL_COLS = ['anneemut','moismut', 'coddep','insee','latitude','longitude','nblot','valm2','rooms','ts_date']
+BUY_COLS = ['anneemut','moismut', 'coddep','insee','latitude','longitude','valm2','ts_date']
 AVERAGE_RADIUS_OF_EARTH_KM = 6371
 
 
@@ -30,6 +30,9 @@ def compute_number_of_rooms(row):
     else : return 0
 
 def filter_dataset(df):
+
+    # preprocessing the date
+    df = preprocess_date(df)
 
     # Select only 'new appartments' + 'one appartment' deals
     df_sell = df[(df.libnatmut == "Vente en l'état futur d'achèvement") & (df.libtypbien == 'UN APPARTEMENT')]
@@ -94,7 +97,8 @@ def add_communal_div(df):
     return df
 
 def preprocess_date(df):
-    df['ts_date'] = df.anneemut + (df.moismut-1)/12 -2014
+    df['ts_date'] = df.anneemut + (df.moismut-1)/12 
+    df['ts_date'] = df['ts_date'] - np.max(df['ts_date'])
     return df
 
 
