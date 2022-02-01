@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 def valm2_communal(df):
     return df.groupby(['l_codinsee', 'anneemut']).mean()[['valm2']].unstack().reset_index().T.reset_index().T.iloc[2:,:]
@@ -35,3 +36,5 @@ def calculated_data(df_buy, df_sell):
 
     return(df)
 
+def mean_absolute_percentage_error(y_true,y_pred):
+    return np.mean(np.abs((y_pred - y_true)/y_true))
