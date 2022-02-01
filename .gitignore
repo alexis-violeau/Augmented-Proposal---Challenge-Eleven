@@ -1,5 +1,6 @@
 data/
 ./src/__pycache__/
+Lance.ipynb
 *.pyc 
 *.csv
 notebook_test.ipynb
