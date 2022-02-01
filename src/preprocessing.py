@@ -1,9 +1,4 @@
 import loading
-from math import radians
-from scipy.spatial import distance_matrix
-from sklearn.neighbors import BallTree
-import numpy as np
-import pandas as pd
 
 SELL_COLS = ['anneemut','moismut', 'coddep','l_codinsee','latitude','longitude','nblot','valm2','rooms']
 BUY_COLS = ['anneemut','moismut', 'coddep','l_codinsee','latitude','longitude','valm2']
@@ -79,6 +74,8 @@ def add_communal_div(df):
     # Adding code_zone for Paris
     df['code_zone'].replace({ np.NaN : "Abis"}, inplace=True)
 
+def preprocess_date(df):
+    df['ts_date'] = df.anneemut + (df.moismut-1)/12 -min(df.anneemut)
     return df
 
 
