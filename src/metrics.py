@@ -51,6 +51,12 @@ def calculated_data(df_buy, df_sell):
     cols = ['ratio_2014', 'ratio_2015', 'ratio_2016', 'ratio_2017', 'ratio_2018', 'ratio_2019', 'ratio_2020']
     df = pd.concat([df,pd.DataFrame(array, columns=cols)], axis=1)
 
+    for i in range (15,21):
+        df = pd.concat([df, 100*(df.iloc[:, i+1] - df.iloc[:, i])/df.iloc[:, i] ], axis=1)
+        col_name = 'evol_' + str(2000 + i)
+        df.columns = [*df.columns[:-1], col_name]
+        i+=1
+    
     return(df)
 
 def mean_absolute_percentage_error(y_true,y_pred):
