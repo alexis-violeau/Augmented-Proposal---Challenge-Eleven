@@ -1,3 +1,4 @@
+import loading
 
 SELL_COLS = ['anneemut','moismut', 'coddep','l_codinsee','latitude','longitude','nblot','valm2','rooms']
 BUY_COLS = ['anneemut','moismut', 'coddep','l_codinsee','latitude','longitude','valm2']
@@ -24,7 +25,7 @@ def filter_dataset(df):
     # Compute number of rooms
     df_sell['rooms'] = df_sell.apply(compute_number_of_rooms,axis=1)    
     # Convert list of INSEE code to single value
-    df_sell['l_codinsee'] = df_sell['l_codinsee'].apply(lambda x : x[2:-2])
+    df_sell['l_codinsee'] = df_sell['l_codinsee'].apply(lambda x : x[2:-2]).astype(int)
     # Set right types
     df_sell.coddep = df_sell.coddep.astype(int)
     df_sell.anneemut = df_sell.anneemut.astype(int)
@@ -33,10 +34,18 @@ def filter_dataset(df):
 
     # Filter only TAB
     df_buy = df[df.libtypbien == 'TERRAIN DE TYPE TAB']
+    # Filter only one comm
+    df_buy = df_buy[(df_buy.nbcomm == 1)]
     # Compute value per surface
     df_buy['valm2'] = df_buy.valeurfonc/df_buy.sterr
     # Convert list of INSEE code to single value
-    df_buy['l_codinsee'] = df_buy['l_codinsee'].apply(lambda x : x[2:-2])
+    df_buy['l_codinsee'] = df_buy['l_codinsee'].apply(lambda x : x[2:-2]).astype(int)
 
 
     return df_sell[SELL_COLS].reset_index(drop=True), df_buy[BUY_COLS].reset_index(drop=True)
+
+
+
+def add_geodata(df):
+    df_geo = loading.load_geodata()
+    return df.merge(df_geo,how='left',left_on='l_codinsee',right_on='insee')
