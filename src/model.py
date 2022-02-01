@@ -1,14 +1,111 @@
 from math import radians
 import numpy as np
-from scipy.spatial import distance_matrix
-from sklearn.neighbors import BallTree
+import os
+from pickle import dump, load
+import preprocessing
+import metrics
+import pandas as pd
 
-AVERAGE_RADIUS_OF_EARTH_KM = 6371
-X_COLS = ['latitude', 'longitude', 'rooms','ts_date','neighborhood_price','mean_distance_neigh']
-Y_COLS = ['valm2']
+from sklearn.model_selection import GridSearchCV,train_test_split
+from sklearn.ensemble import RandomForestRegressor
+
+from sklearn.metrics import make_scorer
+
+#AVERAGE_RADIUS_OF_EARTH_KM = 6371
+
+X_COLS_SELL = ['latitude', 'longitude', 'rooms','ts_date']
+X_COLS_BUY = ['latitude', 'longitude','ts_date']
+
+Y_COLS = 'valm2'
+
+
+def produce_datasets(df,x_cols,y_col,n_neigh_max = 100,dist_max = 350):
+
+    df = preprocessing.preprocess_date(df)
+
+    df_train, df_test = train_test_split(df)
+    df_train.reset_index(inplace=True,drop=True)
+    df_test.reset_index(inplace=True,drop=True)
+
+    X_train = df_train[x_cols]
+    X_test = df_test[x_cols]
+
+    y_train = df_train[y_col]
+    y_test = df_test[y_col]
+
+    return X_train, X_test, y_train, y_test
+
+
+def fit_sell_model(df):
+    X_train, X_test, y_train, y_test = produce_datasets(df,X_COLS_SELL,Y_COLS)
+    param_grid = {'n_estimators' : [500],
+                  'max_samples' : [0.5]}
+
+    scoring = make_scorer(metrics.mean_absolute_percentage_error,greater_is_better = False)
+    gscv = GridSearchCV(estimator=RandomForestRegressor(), 
+                        param_grid=param_grid,verbose=1,
+                        scoring = scoring)
+    gscv.fit(X_train,y_train)
+
+
+    if not os.path.exists('saved_model'):
+        os.mkdir('saved_model')
+
+    y_pred = gscv.best_estimator_.predict(X_test)
+    print("Mean absolute percentage error : {:.2f}".format(100*metrics.mean_absolute_percentage_error(y_test.values,y_pred)))
+
+    model = RandomForestRegressor(**gscv.best_params_)
+    model.fit(pd.concat([X_train,X_test]),pd.concat([y_train,y_test]))
+
+    dump(model, open('./saved_model/sell_model.pkl', 'wb'))
 
 
 
+
+def fit_buy_model(df):
+    X_train, X_test, y_train, y_test = produce_datasets(df,X_COLS_BUY,Y_COLS)
+    param_grid = {'n_estimators' : [500],
+                  'max_samples' : [0.5]}
+
+    scoring = make_scorer(metrics.mean_absolute_percentage_error,greater_is_better = False)
+    gscv = GridSearchCV(estimator=RandomForestRegressor(), 
+                        param_grid=param_grid,verbose=1,
+                        scoring = scoring)
+    gscv.fit(X_train,y_train)
+
+
+    if not os.path.exists('saved_model'):
+        os.mkdir('saved_model')
+
+    y_pred = gscv.best_estimator_.predict(X_test)
+    print("Mean absolute percentage error : {:.2f}".format(100*metrics.mean_absolute_percentage_error(y_test.values,y_pred)))
+
+    model = RandomForestRegressor(**gscv.best_params_)
+    model.fit(pd.concat([X_train,X_test]),pd.concat([y_train,y_test]))
+
+    dump(model, open('./saved_model/buy_model.pkl', 'wb'))
+
+
+
+def load_sell_model():
+    try:
+        return load(open('./saved_model/sell_model.pkl', 'rb'))
+
+    except :
+        raise NameError('No model fitted yet. Please call model.fit_sell_model first.')
+
+
+
+def load_buy_model():
+    try:
+        return load(open('./saved_model/buy_model.pkl', 'rb'))
+
+    except :
+        raise NameError('No model fitted yet. Please call model.fit_sell_model first.')
+
+
+
+""""
 
 def compute_neighborhood_price_train(df,n_neigh_max = 50,dist_max = 500,clean = True):
 
@@ -20,6 +117,7 @@ def compute_neighborhood_price_train(df,n_neigh_max = 50,dist_max = 500,clean = 
 
     # remove the one :
     nb_query = len(dist)
+
     new_dist = np.zeros((nb_query,n_neigh_max))
     new_indices = np.zeros((nb_query,n_neigh_max))
 
@@ -32,7 +130,6 @@ def compute_neighborhood_price_train(df,n_neigh_max = 50,dist_max = 500,clean = 
             to_remove = np.where(dist[i]==0)[0]
             new_dist = np.delete(dist[i], to_remove)
             new_indices = np.delete(indices[i], to_remove)
-            break
         except :
             new_dist = dist[i]
             new_indices = indices[i]
@@ -52,10 +149,17 @@ def compute_neighborhood_price_train(df,n_neigh_max = 50,dist_max = 500,clean = 
                 indices_to_delete.append(new_indices[ind])
 
         new_dist = new_dist[clean_indices] * AVERAGE_RADIUS_OF_EARTH_KM *1000
-
         mean_distance.append(np.mean(new_dist))
+        clean_values = np.array(clean_values)
 
-        Neigh_price.append(np.mean(np.array(clean_values)[new_dist<dist_max]))
+        if len(clean_values[new_dist<dist_max]):
+            Neigh_price.append(np.mean(clean_values[new_dist<dist_max]))
+        else :
+            try :
+                Neigh_price.append(clean_values[0])
+            except :
+                print('Increase number of neighbors, nan values.')
+                Neigh_price.append(np.nan)
 
 
     df['neighborhood_price'] = Neigh_price
@@ -65,8 +169,6 @@ def compute_neighborhood_price_train(df,n_neigh_max = 50,dist_max = 500,clean = 
         return df.drop(list(set(indices_to_delete))).reset_index()
     else :
         return df
-
-
 
 
 
@@ -92,3 +194,4 @@ def compute_neighborhood_price_test(df_train,df_test,n_neigh_max = 10,dist_max =
 
     return df_test
 
+"""
