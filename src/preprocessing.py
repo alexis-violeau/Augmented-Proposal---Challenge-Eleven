@@ -2,6 +2,8 @@ import loading
 from math import radians
 from scipy.spatial import distance_matrix
 from sklearn.neighbors import BallTree
+import numpy as np
+import pandas as pd
 
 SELL_COLS = ['anneemut','moismut', 'coddep','l_codinsee','latitude','longitude','nblot','valm2','rooms']
 BUY_COLS = ['anneemut','moismut', 'coddep','l_codinsee','latitude','longitude','valm2']
@@ -64,12 +66,20 @@ def compute_neighborhood_price(df):
     model = BallTree(df[['radian_latitude', 'radian_longitude']].values, metric='haversine')
     dist, indices = model.query(df[['radian_latitude', 'radian_longitude']].values,k)
 
-def add_comunal_div(df):
-    df_commune = loading.load_comunal_data()
+def add_communal_div(df):
+    df_commune = loading.load_communal_data()
     df_commune.columns = ['insee', 'code_zone', 'no_need']
     df_commune.drop(['no_need'], axis=1, inplace=True)
     df_commune['insee'] = df_commune['insee'].astype(int)
-    return df.merge(df_commune,how='left',left_on='insee',right_on='insee')
+
+    df = df.merge(df_commune,how='left',left_on='insee',right_on='insee')
+    df.drop(['insee'], axis=1, inplace=True)
+
+    # Adding code_zone for Paris
+    df['code_zone'].replace({ np.NaN : "Abis"}, inplace=True)
+
+    return df
+
 
 
 
