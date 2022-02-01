@@ -3,7 +3,7 @@ import numpy as np
 from scipy.spatial import distance_matrix
 from sklearn.neighbors import BallTree
 
-
+AVERAGE_RADIUS_OF_EARTH_KM = 6371
 X_COLS = ['latitude', 'longitude', 'rooms','ts_date','neighborhood_price','mean_distance_neigh']
 Y_COLS = ['valm2']
 
