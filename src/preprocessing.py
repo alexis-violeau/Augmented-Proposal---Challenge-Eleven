@@ -1,8 +1,8 @@
 import loading
 import numpy as np
 
-SELL_COLS = ['anneemut','moismut', 'coddep','insee','latitude','longitude','nblot','valm2','rooms']
-BUY_COLS = ['anneemut','moismut', 'coddep','insee','latitude','longitude','valm2']
+SELL_COLS = ['anneemut','moismut', 'insee','latitude','longitude','valm2','rooms']
+BUY_COLS = ['anneemut','moismut', 'insee','latitude','longitude','valm2']
 AVERAGE_RADIUS_OF_EARTH_KM = 6371
 
 
@@ -47,7 +47,7 @@ def filter_dataset(df):
 
 def add_geodata(df):
     df_geo = loading.load_geodata()
-    return df.merge(df_geo,how='left',left_on='l_codinsee',right_on='insee')
+    return df.merge(df_geo,how='left',on = 'insee')
 
 
 def add_communal_div(df):
