@@ -4,8 +4,6 @@ import numpy as np
 
 SELL_COLS = ['anneemut','moismut', 'coddep','insee','latitude','longitude','nblot','valm2','rooms','ts_date']
 BUY_COLS = ['anneemut','moismut', 'coddep','insee','latitude','longitude','valm2','ts_date']
-AVERAGE_RADIUS_OF_EARTH_KM = 6371
-
 
 def subset_valm2_by_iqr(df, width=1.5):
     # Calculate Q1, Q2 and IQR
@@ -95,7 +93,7 @@ def add_communal_div(df):
 
 def preprocess_date(df):
     df['ts_date'] = df.anneemut + (df.moismut-1)/12 
-    df['ts_date'] = df['ts_date'] - np.max(df['ts_date'])
+    #df['ts_date'] = df['ts_date'] - np.max(df['ts_date'])
     return df
 
 
