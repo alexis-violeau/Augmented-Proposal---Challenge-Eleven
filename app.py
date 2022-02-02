@@ -52,7 +52,7 @@ if col == 'Value per square meter':
     
 st.sidebar.header('The Right Price')
 
-map.add_child(folium.ClickForMarker(popup='Sell price'))
+map.add_child(folium.ClickForMarker(popup='Saint Denis | Sell price : 5897 | Buy price : 683'))
 
 
 adresse = st.sidebar.text_input('Adress : ', 'Rue de la libération Jouy en Josas')
