@@ -1,6 +1,5 @@
 import sys
 import numpy as np
-from model import X_COLS_BUY
 import streamlit as st 
 import folium
 from folium import plugins
@@ -25,8 +24,8 @@ st.sidebar.title('Opportunities in the real estate landscape')
 st.sidebar.header('Map')
 
 type = st.sidebar.radio(
-     "Type of mutation",
-     ('Appartment', 'Raw land'))
+     "What are you looking for ?",
+     ('Sell appartment', 'Buy raw land'))
 
 if type == 'Appartment':
     df_selected = df_sell
@@ -34,43 +33,45 @@ else:
     df_selected = df_buy
 
 col = st.sidebar.selectbox(
-     'KPI',
-     ('trade density','valm2', 'return', 'change in return'))
+     'Indicator',
+     ('Trade density','Value per square meter', 'Return', 'Change in return'))
 
-year_min,year_max = st.sidebar.slider('Select year range :',2014, 2020, (2016, 2018))
+year_min,year_max = st.sidebar.slider('Year range :',2014, 2020, (2016, 2018))
 
-if col == 'trade density':
+if col == 'Trade density':
     df_selected = df_selected[['anneemut','insee']]
     df_agg = df_selected[(df_selected['anneemut'] >= year_min) & (df_selected['anneemut'] <= year_max)].groupby('insee').count().reset_index()
     df_geo = gpd.GeoDataFrame(preprocessing.add_geodata(df_agg).round())
     map = visualization.communal_maps(communal_df=df_geo,col='anneemut',legend='Number of trade')
     
-if col == 'valm2':
-    df_selected = df_selected[['anneemut','insee',col]]
+if col == 'Value per square meter':
+    df_selected = df_selected[['anneemut','insee','valm2']]
     df_agg = df_selected[(df_selected['anneemut'] >= year_min) & (df_selected['anneemut'] <= year_max)].groupby('insee').mean().reset_index()
     df_geo = gpd.GeoDataFrame(preprocessing.add_geodata(df_agg).round())
-    map = visualization.communal_maps(communal_df=df_geo,col=col,legend='Average square meter price')
+    map = visualization.communal_maps(communal_df=df_geo,col='valm2',legend='Average square meter price')
     
 st.sidebar.header('The Right Price')
 
-map.add_child(folium.ClickForMarker(popup='Sell price (/m2) = '))
+map.add_child(folium.ClickForMarker(popup='Sell price'))
 
 
-
-adresse = st.sidebar.text_input('Adress : ', '11 Rue Vieille du Temple, Paris')
+adresse = st.sidebar.text_input('Adress : ', 'Rue de la libération Jouy en Josas')
 
 lat,long = visualization.extract_logitude_latitude(adresse)
 
-model_buy = model.load_buy_model()
 model_sell = model.load_sell_model()
+model_buy = model.load_buy_model()
 
-price_sell = model_sell.predict(np.array([[lat,long,1.0,0.0]]))
-price_buy = model_buy.predict(np.array([[lat,long,0.0]]))
+sell_price = round(model_sell.predict(np.array([[lat,long,1,0]]))[0])
+buy_price = round(model_buy.predict(np.array([[lat,long,0]]))[0])
+
+st.sidebar.caption('Sell price : ' + str(sell_price))
+st.sidebar.caption('Buy price : ' + str(buy_price))
 
 
 folium.Marker(
       location=[lat, long],
-      popup=adresse +  ' \n sell price : ' + str(price_sell[0]) + ' \n buy price : ' + str(price_buy[0]),
+      popup=adresse,
    ).add_to(map)
 
 folium_static(map)
