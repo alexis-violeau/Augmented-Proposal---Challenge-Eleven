@@ -27,7 +27,7 @@ type = st.sidebar.radio(
      "What are you looking for ?",
      ('Sell appartment', 'Buy raw land'))
 
-if type == 'Appartment':
+if type == 'Sell appartment':
     df_selected = df_sell
 else:
     df_selected = df_buy
